@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using SuperSocket.ClientEngine;
+﻿using WebSocket4Net.Protocol;
 
 namespace WebSocket4Net.Command
 {
     public class Close : WebSocketCommandBase
     {
+        public static readonly Close Instance = new Close();
+
         public override void ExecuteCommand(WebSocket session, WebSocketCommandInfo commandInfo)
         {
             //Close handshake was sent from client side, now got a handshake response
@@ -20,14 +19,11 @@ namespace WebSocket4Net.Command
             var statusCode = commandInfo.CloseStatusCode;
 
             if (statusCode <= 0)
-                statusCode = session.ProtocolProcessor.CloseStatusCode.NoStatusCode;
+                statusCode = (int)CloseStatusCode.NoStatusCode;
 
             session.Close(statusCode, commandInfo.Text);
         }
 
-        public override string Name
-        {
-            get { return OpCode.Close.ToString(); }
-        }
+        public override string Name { get; } = OpCode.Close.ToString();
     }
 }

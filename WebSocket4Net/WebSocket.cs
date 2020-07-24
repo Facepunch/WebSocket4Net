@@ -16,13 +16,7 @@ namespace WebSocket4Net
     {
         internal TcpClientSession Client { get; private set; }
 
-
         private EndPoint m_RemoteEndPoint;
-
-        /// <summary>
-        /// Gets the version of the websocket protocol.
-        /// </summary>
-        public WebSocketVersion Version { get; private set; }
 
         /// <summary>
         /// Gets the last active time of the websocket.
@@ -45,24 +39,13 @@ namespace WebSocket4Net
         /// </value>
         public int AutoSendPingInterval { get; set; }
 
-        protected const string UserAgentKey = "User-Agent";
-
-        internal IProtocolProcessor ProtocolProcessor { get; private set; }
-
-        public bool SupportBinary
-        {
-            get { return ProtocolProcessor.SupportBinary; }
-        }
+        internal ProtocolProcessorBase ProtocolProcessor { get; private set; }
 
         internal Uri TargetUri { get; private set; }
 
         internal string SubProtocol { get; private set; }
 
         internal IDictionary<string, object> Items { get; private set; }
-
-        internal List<KeyValuePair<string, string>> Cookies { get; private set; }
-
-        internal List<KeyValuePair<string, string>> CustomHeaderItems { get; private set; }
 
         public const int DefaultReceiveBufferSize = 4096;
 
@@ -81,23 +64,10 @@ namespace WebSocket4Net
 
         public bool Handshaked { get; private set; }
 
-        public IProxyConnector Proxy { get; set; }
-
-        private EndPoint m_HttpConnectProxy;
-
-        internal EndPoint HttpConnectProxy
-        {
-            get { return m_HttpConnectProxy; }
-        }
-
         protected IClientCommandReader<WebSocketCommandInfo> CommandReader { get; private set; }
 
         private Dictionary<string, ICommand<WebSocket, WebSocketCommandInfo>> m_CommandDict
             = new Dictionary<string, ICommand<WebSocket, WebSocketCommandInfo>>(StringComparer.OrdinalIgnoreCase);
-
-        private static ProtocolProcessorFactory m_ProtocolProcessorFactory;
-
-        internal bool NotSpecifiedVersion { get; private set; }
 
         /// <summary>
         /// It is used for ping/pong and closing handshake checking
@@ -175,11 +145,6 @@ namespace WebSocket4Net
 
         private bool m_Disposed = false;
 
-        static WebSocket()
-        {
-            m_ProtocolProcessorFactory = new ProtocolProcessorFactory(new Rfc6455Processor(), new DraftHybi10Processor(), new DraftHybi00Processor());
-        }
-
         private EndPoint ResolveUri(string uri, int defaultPort, out int port)
         {
             TargetUri = new Uri(uri);
@@ -248,12 +213,7 @@ namespace WebSocket4Net
             }
 
             int port;
-            var targetEndPoint = m_RemoteEndPoint = ResolveUri(uri, m_SecurePort, out port);
-
-            if (m_HttpConnectProxy != null)
-            {
-                m_RemoteEndPoint = m_HttpConnectProxy;
-            }
+            m_RemoteEndPoint = ResolveUri(uri, m_SecurePort, out port);
 
             if (port == m_SecurePort)
                 HandshakeHost = TargetUri.Host;
@@ -264,31 +224,10 @@ namespace WebSocket4Net
         }
 #endif
 
-        private void Initialize(string uri, string subProtocol, List<KeyValuePair<string, string>> cookies, List<KeyValuePair<string, string>> customHeaderItems, string userAgent, string origin, WebSocketVersion version, EndPoint httpConnectProxy, int receiveBufferSize)
+        private void Initialize(string uri, string subProtocol, string origin, int receiveBufferSize)
         {
-            if (version == WebSocketVersion.None)
-            {
-                NotSpecifiedVersion = true;
-                version = WebSocketVersion.Rfc6455;
-            }
-
-            Version = version;
-            ProtocolProcessor = GetProtocolProcessor(version);
-
-            Cookies = cookies;
-
             Origin = origin;
-
-            if (!string.IsNullOrEmpty(userAgent))
-            {
-                if (customHeaderItems == null)
-                    customHeaderItems = new List<KeyValuePair<string, string>>();
-
-                customHeaderItems.Add(new KeyValuePair<string, string>(UserAgentKey, userAgent));
-            }
-
-            if (customHeaderItems != null && customHeaderItems.Count > 0)
-                CustomHeaderItems = customHeaderItems;
+            ProtocolProcessor = new Rfc6455Processor();
 
             var handshakeCmd = new Command.Handshake();
             m_CommandDict.Add(handshakeCmd.Name, handshakeCmd);
@@ -310,10 +249,6 @@ namespace WebSocket4Net
             SubProtocol = subProtocol;
 
             Items = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
-
-            m_HttpConnectProxy = httpConnectProxy;
-
-
 
             TcpClientSession client;
 
@@ -373,17 +308,6 @@ namespace WebSocket4Net
             OnConnected();
         }
 
-        internal bool GetAvailableProcessor(int[] availableVersions)
-        {
-            var processor = m_ProtocolProcessorFactory.GetPreferedProcessorFromAvialable(availableVersions);
-
-            if (processor == null)
-                return false;
-
-            this.ProtocolProcessor = processor;
-            return true;
-        }
-
         public int ReceiveBufferSize
         {
             get { return Client.ReceiveBufferSize; }
@@ -393,9 +317,6 @@ namespace WebSocket4Net
         public void Open()
         {
             m_StateCode = WebSocketStateConst.Connecting;
-
-            if (Proxy != null)
-                Client.Proxy = Proxy;
 
 #if !__IOS__
             Client.NoDelay = NoDelay;
@@ -407,16 +328,6 @@ namespace WebSocket4Net
 #endif
 #endif
             Client.Connect(m_RemoteEndPoint);
-        }
-
-        private static IProtocolProcessor GetProtocolProcessor(WebSocketVersion version)
-        {
-            var processor = m_ProtocolProcessorFactory.GetProcessorByVersion(version);
-
-            if (processor == null)
-                throw new ArgumentException("Invalid websocket version");
-
-            return processor;
         }
 
         void OnConnected()
@@ -435,7 +346,7 @@ namespace WebSocket4Net
 
             Handshaked = true;
 
-            if (EnableAutoSendPing && ProtocolProcessor.SupportPingPong)
+            if (EnableAutoSendPing)
             {
                 //Ping auto sending interval's default value is 60 seconds
                 if (AutoSendPingInterval <= 0)
@@ -457,7 +368,7 @@ namespace WebSocket4Net
 
         private void OnPingTimerCallback(object state)
         {
-            var protocolProcessor = state as IProtocolProcessor;
+            var protocolProcessor = (ProtocolProcessorBase)state;
 
             if (!string.IsNullOrEmpty(m_LastPingRequest) && !m_LastPingRequest.Equals(LastPongResponse))
             {
@@ -588,7 +499,7 @@ namespace WebSocket4Net
 
         public void Close(string reason)
         {
-            Close(ProtocolProcessor.CloseStatusCode.NormalClosure, reason);
+            Close((int)CloseStatusCode.NormalClosure, reason);
         }
 
         public void Close(int statusCode, string reason)

@@ -8,9 +8,4 @@ namespace WebSocket4Net.Common
     {
         string Key { get; }
     }
-
-    public interface ICommandInfo<TCommandData> : ICommandInfo
-    {
-        TCommandData Data { get; }
-    }
 }

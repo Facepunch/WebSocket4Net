@@ -1,20 +1,17 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace WebSocket4Net.Command
 {
     public class Ping : WebSocketCommandBase
     {
+        public static readonly Ping Instance = new Ping();
+
         public override void ExecuteCommand(WebSocket session, WebSocketCommandInfo commandInfo)
         {
             session.LastActiveTime = DateTime.Now;
             session.ProtocolProcessor.SendPong(session, commandInfo.Text);
         }
 
-        public override string Name
-        {
-            get { return OpCode.Ping.ToString(); }
-        }
+        public override string Name { get; } = OpCode.Ping.ToString();
     }
 }

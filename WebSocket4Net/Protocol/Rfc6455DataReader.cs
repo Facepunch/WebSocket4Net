@@ -6,9 +6,9 @@ using WebSocket4Net.Protocol.FramePartReader;
 
 namespace WebSocket4Net.Protocol
 {
-    class DraftHybi10DataReader : IClientCommandReader<WebSocketCommandInfo>
+    class Rfc6455DataReader : IClientCommandReader<WebSocketCommandInfo>
     {
-        public DraftHybi10DataReader()
+        public Rfc6455DataReader()
         {
             m_Frame = new WebSocketDataFrame(new ArraySegmentList());
             m_PartReader = DataFramePartReader.NewReader;

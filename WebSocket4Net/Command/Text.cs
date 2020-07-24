@@ -1,20 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using SuperSocket.ClientEngine;
-
-namespace WebSocket4Net.Command
+﻿namespace WebSocket4Net.Command
 {
     public class Text : WebSocketCommandBase
     {
+        public static readonly Text Instance = new Text();
+
         public override void ExecuteCommand(WebSocket session, WebSocketCommandInfo commandInfo)
         {
             session.FireMessageReceived(commandInfo.Text);
         }
 
-        public override string Name
-        {
-            get { return OpCode.Text.ToString(); }
-        }
+        public override string Name { get; } = OpCode.Text.ToString();
     }
 }

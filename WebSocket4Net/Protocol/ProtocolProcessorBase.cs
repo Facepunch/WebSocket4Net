@@ -1,20 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
-using SuperSocket.ClientEngine;
 
 namespace WebSocket4Net.Protocol
 {
-    abstract class ProtocolProcessorBase : IProtocolProcessor
+    abstract class ProtocolProcessorBase
     {
         protected const string HeaderItemFormat = "{0}: {1}";
-
-        public ProtocolProcessorBase(WebSocketVersion version, ICloseStatusCode closeStatusCode)
-        {
-            CloseStatusCode = closeStatusCode;
-            Version = version;
-            VersionTag = ((int)version).ToString();
-        }
 
         public abstract void SendHandshake(WebSocket websocket);
 
@@ -34,17 +25,9 @@ namespace WebSocket4Net.Protocol
 
         public abstract void SendData(WebSocket websocket, IList<ArraySegment<byte>> segments);
 
-        public abstract bool SupportBinary { get; }
+        protected string VersionTag { get; } = "13";
 
-        public abstract bool SupportPingPong { get; }
-
-        public ICloseStatusCode CloseStatusCode { get; private set; }
-
-        public WebSocketVersion Version { get; private set; }
-
-        protected string VersionTag { get; private set; }
-
-        private static char[] s_SpaceSpliter = new char[] { ' ' };
+        private static char[] s_SpaceSpliter = { ' ' };
 
         protected virtual bool ValidateVerbLine(string verbLine)
         {
@@ -56,9 +39,7 @@ namespace WebSocket4Net.Protocol
             if (!parts[0].StartsWith("HTTP/"))
                 return false;
 
-            var statusCode = 0;
-
-            if (!int.TryParse(parts[1], out statusCode))
+            if (!int.TryParse(parts[1], out var statusCode))
                 return false;
 
             return statusCode == 101;

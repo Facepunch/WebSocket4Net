@@ -2,45 +2,35 @@
 using System.Collections.Generic;
 using System.Text;
 using System.IO;
-using System.Linq;
-using System.Reflection;
-using SuperSocket.ClientEngine;
-
-#if !NETFX_CORE
 using System.Security.Cryptography;
-#else
-using Windows.Security.Cryptography;
-using Windows.Security.Cryptography.Core;
-#endif
-
 
 namespace WebSocket4Net
 {
     public static partial class Extensions
     {
-        private readonly static char[] m_CrCf = new char[] { '\r', '\n' };
+        private readonly static char[] m_CrLf = { '\r', '\n' };
 
-        public static void AppendFormatWithCrCf(this StringBuilder builder, string format, object arg)
+        public static void AppendFormatWithCrLf(this StringBuilder builder, string format, object arg)
         {
             builder.AppendFormat(format, arg);
-            builder.Append(m_CrCf);
+            builder.Append(m_CrLf);
         }
 
-        public static void AppendFormatWithCrCf(this StringBuilder builder, string format, params object[] args)
+        public static void AppendFormatWithCrLf(this StringBuilder builder, string format, params object[] args)
         {
             builder.AppendFormat(format, args);
-            builder.Append(m_CrCf);
+            builder.Append(m_CrLf);
         }
 
-        public static void AppendWithCrCf(this StringBuilder builder, string content)
+        public static void AppendWithCrLf(this StringBuilder builder, string content)
         {
             builder.Append(content);
-            builder.Append(m_CrCf);
+            builder.Append(m_CrLf);
         }
 
-        public static void AppendWithCrCf(this StringBuilder builder)
+        public static void AppendWithCrLf(this StringBuilder builder)
         {
-            builder.Append(m_CrCf);
+            builder.Append(m_CrLf);
         }
 
         private const string m_Tab = "\t";
@@ -124,36 +114,6 @@ namespace WebSocket4Net
                 return defaultValue;
 
             return (TValue)value;
-        }
-
-        private static Type[] m_SimpleTypes = new Type[] {
-                typeof(String),
-                typeof(Decimal),
-                typeof(DateTime),
-                typeof(DateTimeOffset),
-                typeof(TimeSpan),
-                typeof(Guid)
-            };
-
-
-        internal static bool IsSimpleType(this Type type)
-        {
-#if NETFX_CORE || NETCORE
-            var typeInfo = type.GetTypeInfo();
-
-            return
-                typeInfo.IsValueType ||
-                typeInfo.IsPrimitive ||
-                m_SimpleTypes.Contains(type) ||
-                Convert.GetTypeCode(type) != TypeCode.Object;
-
-#else
-            return
-                type.IsValueType ||
-                type.IsPrimitive ||
-                m_SimpleTypes.Contains(type) ||
-                Convert.GetTypeCode(type) != TypeCode.Object;
-#endif
         }
 
         public static string GetOrigin(this Uri uri)
