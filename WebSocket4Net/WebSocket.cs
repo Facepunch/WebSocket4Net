@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Net;
-using System.Reflection;
-using System.Text;
 using System.Threading;
 using SuperSocket.ClientEngine;
 using WebSocket4Net.Common;
@@ -49,17 +45,12 @@ namespace WebSocket4Net
 
         public const int DefaultReceiveBufferSize = 4096;
 
+        private int m_State;
 
-        private int m_StateCode;
-
-        internal int StateCode
+        public WebSocketStateConst State
         {
-            get { return m_StateCode; }
-        }
-
-        public WebSocketState State
-        {
-            get { return (WebSocketState)m_StateCode; }
+            get => (WebSocketStateConst)m_State;
+            private set => m_State = (int)value;
         }
 
         public bool Handshaked { get; private set; }
@@ -244,7 +235,7 @@ namespace WebSocket4Net
             var badRequestCmd = new Command.BadRequest();
             m_CommandDict.Add(badRequestCmd.Name, badRequestCmd);
             
-            m_StateCode = WebSocketStateConst.None;
+            State = WebSocketStateConst.None;
 
             SubProtocol = subProtocol;
 
@@ -316,7 +307,7 @@ namespace WebSocket4Net
 
         public void Open()
         {
-            m_StateCode = WebSocketStateConst.Connecting;
+            State = WebSocketStateConst.Connecting;
 
 #if !__IOS__
             Client.NoDelay = NoDelay;
@@ -342,7 +333,7 @@ namespace WebSocket4Net
 
         protected internal virtual void OnHandshaked()
         {
-            m_StateCode = WebSocketStateConst.Open;
+            State = WebSocketStateConst.Open;
 
             Handshaked = true;
 
@@ -483,10 +474,10 @@ namespace WebSocket4Net
 
             var fireBaseClose = false;
 
-            if (m_StateCode == WebSocketStateConst.Closing || m_StateCode == WebSocketStateConst.Open || m_StateCode == WebSocketStateConst.Connecting)
+            if (State == WebSocketStateConst.Closing || State == WebSocketStateConst.Open || State == WebSocketStateConst.Connecting)
                 fireBaseClose = true;
 
-            m_StateCode = WebSocketStateConst.Closed;
+            State = WebSocketStateConst.Closed;
 
             if (fireBaseClose)
                 FireClosed();
@@ -507,16 +498,16 @@ namespace WebSocket4Net
             m_ClosedArgs = new ClosedEventArgs((short)statusCode, reason);
 
             //The websocket never be opened
-            if (Interlocked.CompareExchange(ref m_StateCode, WebSocketStateConst.Closed, WebSocketStateConst.None)
-                    == WebSocketStateConst.None)
+            if (Interlocked.CompareExchange(ref m_State, (int)WebSocketStateConst.Closed, (int)WebSocketStateConst.None)
+                    == (int)WebSocketStateConst.None)
             {
                 OnClosed();
                 return;
             }
 
             //The websocket is connecting or in handshake
-            if (Interlocked.CompareExchange(ref m_StateCode, WebSocketStateConst.Closing, WebSocketStateConst.Connecting)
-                    == WebSocketStateConst.Connecting)
+            if (Interlocked.CompareExchange(ref m_State, (int)WebSocketStateConst.Closing, (int)WebSocketStateConst.Connecting)
+                    == (int)WebSocketStateConst.Connecting)
             {
                 var client = Client;
 
@@ -530,7 +521,7 @@ namespace WebSocket4Net
                 return;
             }
 
-            m_StateCode = WebSocketStateConst.Closing;
+            State = WebSocketStateConst.Closing;
 
             //Disable auto ping
             ClearTimer();
@@ -552,7 +543,7 @@ namespace WebSocket4Net
 
         private void CheckCloseHandshake(object state)
         {
-            if (m_StateCode == WebSocketStateConst.Closed)
+            if (State == WebSocketStateConst.Closed)
                 return;
 
             try

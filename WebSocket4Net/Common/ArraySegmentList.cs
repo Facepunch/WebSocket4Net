@@ -188,7 +188,7 @@ namespace WebSocket4Net.Common
 
             var result = QuickSearchSegment(from, to, index, out segmentIndex);
 
-            if (result != null)
+            if (result.Array != null)
             {
                 m_PrevSegment = result;
                 m_PrevSegmentIndex = segmentIndex;
@@ -196,7 +196,7 @@ namespace WebSocket4Net.Common
                 return result.Offset + index - result.From;
             }
 
-            m_PrevSegment = null;
+            m_PrevSegment = default;
 
             return -1;
         }
@@ -218,7 +218,7 @@ namespace WebSocket4Net.Common
                     return segment;
                 }
 
-                return null;
+                return default;
             }
             else if (diff == 1)
             {
@@ -238,7 +238,7 @@ namespace WebSocket4Net.Common
                     return segment;
                 }
 
-                return null;
+                return default;
             }
 
             int middle = from + diff / 2;
@@ -356,7 +356,7 @@ namespace WebSocket4Net.Common
 
             var currentTotal = m_Count;
 
-            ArraySegmentEx<T> segment = null;
+            ArraySegmentEx<T> segment;
 
             if (!toBeCopied)
                 segment = new ArraySegmentEx<T>(array, offset, length);
@@ -378,7 +378,7 @@ namespace WebSocket4Net.Common
         public void ClearSegements()
         {
             m_Segments.Clear();
-            m_PrevSegment = null;
+            m_PrevSegment = default;
             m_Count = 0;
         }
 
@@ -398,7 +398,7 @@ namespace WebSocket4Net.Common
             {
                 var startSegment = QuickSearchSegment(0, m_Segments.Count - 1, startIndex, out startSegmentIndex);
                 from = startIndex - startSegment.From;
-                if (startSegment == null)
+                if (startSegment.Array == null)
                     throw new IndexOutOfRangeException();
             }
 

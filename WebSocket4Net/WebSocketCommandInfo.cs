@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using SuperSocket.ClientEngine;
 using WebSocket4Net.Common;
 using WebSocket4Net.Protocol;
 

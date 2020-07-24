@@ -1,32 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace WebSocket4Net.Protocol.FramePartReader
+﻿namespace WebSocket4Net.Protocol.FramePartReader
 {
     abstract class DataFramePartReader : IDataFramePartReader
     {
-        static DataFramePartReader()
-        {
-            FixPartReader = new FixPartReader();
-            ExtendedLenghtReader = new ExtendedLenghtReader();
-            MaskKeyReader = new MaskKeyReader();
-            PayloadDataReader = new PayloadDataReader();
-        }
-
         public abstract int Process(int lastLength, WebSocketDataFrame frame, out IDataFramePartReader nextPartReader);
 
-        public static IDataFramePartReader NewReader
-        {
-            get { return FixPartReader; }
-        }
+        public static IDataFramePartReader NewReader => FixPartReader;
 
-        protected static IDataFramePartReader FixPartReader { get; private set; }
+        protected static IDataFramePartReader FixPartReader { get; } = new FixPartReader();
 
-        protected static IDataFramePartReader ExtendedLenghtReader { get; private set; }
+        protected static IDataFramePartReader ExtendedLengthReader { get; } = new ExtendedLengthReader();
 
-        protected static IDataFramePartReader MaskKeyReader { get; private set; }
+        protected static IDataFramePartReader MaskKeyReader { get; } = new MaskKeyReader();
 
-        protected static IDataFramePartReader PayloadDataReader { get; private set; }
+        protected static IDataFramePartReader PayloadDataReader { get; } = new PayloadDataReader();
     }
 }

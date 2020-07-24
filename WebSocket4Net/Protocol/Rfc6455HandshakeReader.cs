@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace WebSocket4Net.Protocol
+﻿namespace WebSocket4Net.Protocol
 {
     class Rfc6455HandshakeReader : HandshakeReader
     {

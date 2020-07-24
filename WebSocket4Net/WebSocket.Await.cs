@@ -1,8 +1,4 @@
-﻿using System;
-using System.Net;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
 namespace WebSocket4Net
 {
@@ -37,13 +33,13 @@ namespace WebSocket4Net
 
         private void FinishOpenTask()
         {
-            m_OpenTaskSrc?.SetResult(this.StateCode == WebSocketStateConst.Open);
+            m_OpenTaskSrc?.SetResult(State == WebSocketStateConst.Open);
             m_OpenTaskSrc = null;
         }
 
         private void FinishCloseTask()
         {
-            m_CloseTaskSrc?.SetResult(this.StateCode == WebSocketStateConst.Closed);
+            m_CloseTaskSrc?.SetResult(State == WebSocketStateConst.Closed);
             m_CloseTaskSrc = null;
         }
 

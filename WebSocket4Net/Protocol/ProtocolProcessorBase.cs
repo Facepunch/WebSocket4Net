@@ -5,8 +5,6 @@ namespace WebSocket4Net.Protocol
 {
     abstract class ProtocolProcessorBase
     {
-        protected const string HeaderItemFormat = "{0}: {1}";
-
         public abstract void SendHandshake(WebSocket websocket);
 
         public abstract ReaderBase CreateHandshakeReader(WebSocket websocket);

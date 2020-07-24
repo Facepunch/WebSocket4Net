@@ -1,6 +1,4 @@
-﻿using System.Security.Authentication;
-
-namespace WebSocket4Net
+﻿namespace WebSocket4Net
 {
     public partial class WebSocket
     {

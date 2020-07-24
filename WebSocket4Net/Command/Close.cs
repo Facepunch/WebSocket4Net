@@ -9,7 +9,7 @@ namespace WebSocket4Net.Command
         public override void ExecuteCommand(WebSocket session, WebSocketCommandInfo commandInfo)
         {
             //Close handshake was sent from client side, now got a handshake response
-            if (session.StateCode == WebSocketStateConst.Closing)
+            if (session.State == WebSocketStateConst.Closing)
             {
                 session.CloseWithoutHandshake();
                 return;

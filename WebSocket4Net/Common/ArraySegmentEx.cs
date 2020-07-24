@@ -1,34 +1,33 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace WebSocket4Net.Common
+﻿namespace WebSocket4Net.Common
 {
-    class ArraySegmentEx<T>
+    internal readonly struct ArraySegmentEx<T>
     {
-        public ArraySegmentEx(T[] array, int offset, int count)
-        {
-            Array = array;
-            Offset = offset;
-            Count = count;
-        }
         /// <summary>
         /// Gets the array.
         /// </summary>
-        public T[] Array { get; private set; }
+        public T[] Array { get; }
 
         /// <summary>
         /// Gets the count.
         /// </summary>
-        public int Count { get; private set; }
+        public int Count { get; }
 
         /// <summary>
         /// Gets the offset.
         /// </summary>
-        public int Offset { get; private set; }
+        public int Offset { get; }
 
-        public int From { get; set; }
+        public int From { get; }
 
-        public int To { get; set; }
+        public int To { get; }
+
+        public ArraySegmentEx(T[] array, int offset, int count, int from, int to)
+        {
+            Array = array;
+            Offset = offset;
+            Count = count;
+            From = from;
+            To = to;
+        }
     }
 }

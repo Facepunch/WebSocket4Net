@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace WebSocket4Net.Protocol.FramePartReader
+﻿namespace WebSocket4Net.Protocol.FramePartReader
 {
     class FixPartReader : DataFramePartReader
     {
@@ -14,7 +10,7 @@ namespace WebSocket4Net.Protocol.FramePartReader
                 return -1;
             }
 
-            if (frame.PayloadLenght < 126)
+            if (frame.PayloadLength < 126)
             {
                 if (frame.HasMask)
                     nextPartReader = MaskKeyReader;
@@ -31,7 +27,7 @@ namespace WebSocket4Net.Protocol.FramePartReader
             }
             else
             {
-                nextPartReader = ExtendedLenghtReader;
+                nextPartReader = ExtendedLengthReader;
             }
 
             if (frame.Length > 2)

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using WebSocket4Net.Common;
+﻿using WebSocket4Net.Common;
 
 namespace WebSocket4Net.Protocol
 {
@@ -68,7 +65,7 @@ namespace WebSocket4Net.Protocol
             get { return ((m_InnerData[1] & 0x80) == 0x80); }
         }
 
-        public sbyte PayloadLenght
+        public sbyte PayloadLength
         {
             get { return (sbyte)(m_InnerData[1] & 0x7f); }
         }
@@ -82,7 +79,7 @@ namespace WebSocket4Net.Protocol
                 if (m_ActualPayloadLength >= 0)
                     return m_ActualPayloadLength;
 
-                var payloadLength = PayloadLenght;
+                var payloadLength = PayloadLength;
 
                 if (payloadLength < 126)
                     m_ActualPayloadLength = payloadLength;

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 using WebSocket4Net.Common;
 using WebSocket4Net.Protocol.FramePartReader;
 

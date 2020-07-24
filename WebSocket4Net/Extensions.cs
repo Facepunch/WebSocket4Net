@@ -6,7 +6,7 @@ using System.Security.Cryptography;
 
 namespace WebSocket4Net
 {
-    public static partial class Extensions
+    public static class Extensions
     {
         private readonly static char[] m_CrLf = { '\r', '\n' };
 
@@ -100,12 +100,6 @@ namespace WebSocket4Net
             return true;
         }
 
-        public static TValue GetValue<TValue>(this IDictionary<string, object> valueContainer, string name)
-        {
-            var defaultValue = default(TValue);
-            return GetValue(valueContainer, name, defaultValue);
-        }
-
         public static TValue GetValue<TValue>(this IDictionary<string, object> valueContainer, string name, TValue defaultValue)
         {
             object value;
@@ -123,21 +117,6 @@ namespace WebSocket4Net
 #else
             return uri.GetLeftPart(UriPartial.Authority);
 #endif
-        }
-
-        public static byte[] ComputeMD5Hash(this byte[] source)
-        {
-#if NETFX_CORE
-            var algProv = HashAlgorithmProvider.OpenAlgorithm(HashAlgorithmNames.Md5);
-            var hash = algProv.CreateHash();
-            hash.Append(CryptographicBuffer.CreateFromByteArray(source));
-            byte[] result;
-            CryptographicBuffer.CopyToByteArray(hash.GetValueAndReset(), out result);
-            return result;
-#else
-            return MD5.Create().ComputeHash(source);
-#endif
-
         }
 
         public static string CalculateChallenge(this string source)
